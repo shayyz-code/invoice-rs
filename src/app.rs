@@ -1,5 +1,8 @@
 use crate::ui::{form::InvoiceForm, modal::Modal, modal::ModalType};
-use crate::{models::Invoice, pdf::generate_invoice_pdf};
+use crate::{
+    models::{Client, Invoice, Item},
+    pdf::generate_invoice_pdf,
+};
 
 pub enum Mode {
     Normal,
@@ -9,6 +12,7 @@ pub enum Mode {
 
 pub struct App {
     pub invoices: Vec<Invoice>,
+    pub clients: Vec<Client>,
     pub selected: usize,
     pub mode: Mode,
     pub form: Option<InvoiceForm>,
@@ -17,11 +21,57 @@ pub struct App {
 
 impl App {
     pub fn new() -> Self {
+        let clients = vec![
+            Client::new(
+                1,
+                "Alice Co.",
+                "123-456-7890",
+                "aliceco@example.com",
+                "123 Main St",
+            ),
+            Client::new(
+                2,
+                "Bob Ltd.",
+                "987-654-3210",
+                "bob@example.com",
+                "456 Elm St",
+            ),
+        ];
+        let invoices = vec![
+            Invoice::new(
+                1,
+                "INV-001",
+                clients.get(0).unwrap(),
+                "USD",
+                123.45,
+                3.45,
+                0.55,
+                "paid",
+                "Feb 15, 2023",
+                vec![
+                    Item::new("Item 1", Some(10.0), None, None),
+                    Item::new("Item 2", Some(20.0), None, None),
+                ],
+            ),
+            Invoice::new(
+                2,
+                "INV-002",
+                clients.get(1).unwrap(),
+                "USD",
+                456.78,
+                3.45,
+                0.55,
+                "unpaid",
+                "Feb 15, 2023",
+                vec![
+                    Item::new("Item 3", Some(30.0), None, None),
+                    Item::new("Item 4", Some(40.0), None, None),
+                ],
+            ),
+        ];
         Self {
-            invoices: vec![
-                Invoice::new(1, "INV-001", "Alice Co.", 123.45, "Paid"),
-                Invoice::new(2, "INV-002", "Bob Ltd.", 456.78, "Unpaid"),
-            ],
+            invoices,
+            clients,
             selected: 0,
             mode: Mode::Normal,
             form: None,
@@ -47,12 +97,15 @@ impl App {
 
     pub fn start_new(&mut self) {
         self.mode = Mode::Editing;
-        self.form = Some(InvoiceForm::new());
+        self.form = Some(InvoiceForm::new(self.clients.clone()));
     }
 
     pub fn start_edit(&mut self) {
         self.mode = Mode::Editing;
-        self.form = Some(InvoiceForm::from_invoice(self.selected_invoice()));
+        self.form = Some(InvoiceForm::from_invoice(
+            self.selected_invoice(),
+            self.clients.clone(),
+        ));
     }
 
     pub fn open_save_modal(&mut self) {

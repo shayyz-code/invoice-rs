@@ -17,7 +17,12 @@ pub fn draw(frame: &mut Frame, app: &App) {
     let items: Vec<ListItem> = app
         .invoices
         .iter()
-        .map(|inv| ListItem::new(format!("{} - {} ({})", inv.number, inv.client, inv.status)))
+        .map(|inv| {
+            ListItem::new(format!(
+                "{} - {} ({})",
+                inv.code, inv.client.name, inv.status
+            ))
+        })
         .collect();
 
     let mut list_state = ListState::default();
@@ -36,8 +41,23 @@ pub fn draw(frame: &mut Frame, app: &App) {
 
     let inv = app.selected_invoice();
     let detail_text = format!(
-        "Invoice No: {}\nClient: {}\nTotal: ${:.2}\nStatus: {}",
-        inv.number, inv.client, inv.total, inv.status
+        "Invoice: {}\nDate: {}\nStatus: {},\nClient:\n- Name: {}\n- Email: {}\n- Phone: {}\n- Address: {}\nTotal: ${:.2}\nDiscount: ${:.2}\nTax: ${:.2}\nNet Total: ${:.2}\nItems:\n{}",
+        inv.code,
+        inv.date,
+        inv.status,
+        inv.client.name,
+        inv.client.email,
+        inv.client.phone,
+        inv.client.address,
+        inv.total,
+        inv.discount,
+        inv.tax,
+        inv.calculate_net_total(),
+        inv.items
+            .iter()
+            .map(|item| format!("- {}", item))
+            .collect::<Vec<String>>()
+            .join("\n")
     );
 
     let paragraph = Paragraph::new(detail_text)

@@ -1,10 +1,10 @@
 ```
- _____ _   ___      ______ _____ _____ ______      _____   _____
-|_   _| \ | \ \    / / __ \_   _/ ____|  ____|    |  __ \ / ____|
-  | | |  \| |\ \  / / |  | || || |    | |__ ______| |__) | (___
-  | | | . ` | \ \/ /| |  | || || |    |  __|______|  _  / \___ \
- _| |_| |\  |  \  / | |__| || || |____| |____     | | \ \ ____) |
-|_____|_| \_|   \/   \____/_____\_____|______|    |_|  \_\_____/
+         _____ _   ___      ______ _____ _____ ______      _____   _____
+        |_   _| \ | \ \    / / __ \_   _/ ____|  ____|    |  __ \ / ____|
+          | | |  \| |\ \  / / |  | || || |    | |__ ______| |__) | (___
+          | | | . ` | \ \/ /| |  | || || |    |  __|______|  _  / \___ \
+         _| |_| |\  |  \  / | |__| || || |____| |____     | | \ \ ____) |
+        |_____|_| \_|   \/   \____/_____\_____|______|    |_|  \_\_____/
 
 ```
 
@@ -18,7 +18,7 @@
 
 </div>
 
-A terminal-based **Invoice Management System** with unique invoice number built in **Rust** using [Ratatui](https://github.com/ratatui-org/ratatui).
+A terminal-based feature-rich **Invoice Management System** built in **Rust** using [Ratatui](https://github.com/ratatui-org/ratatui).
 
 a TUI interface for managing invoices, and **PDF invoice generation** support.
 
@@ -39,11 +39,17 @@ a TUI interface for managing invoices, and **PDF invoice generation** support.
 src/
 ├── main.rs         # App entry point
 ├── app.rs          # Application state and mode handling
-├── ui.rs           # Main UI rendering logic
-├── form.rs         # Add/Edit invoice form
-├── splash.rs       # Animated splash screen
+├── models.rs       # Models and related methods
+├── db.rs           # Database operations and models
 ├── pdf.rs          # PDF invoice generation
-└── utils.rs        # Utility functions for invoice generation
+├── utils.rs        # Utility functions for invoice generation
+└── ui
+    ├── mod.rs          # UI mod file
+    ├── layout.rs       # layout and styling
+    ├── splash.rs       # Splash screen UI
+    ├── form.rs         # Add/Edit invoice form
+    ├── modal.rs        # Modal UI element
+    └── button.rs       # Button UI element
 
 ```
 
@@ -87,13 +93,13 @@ then open the invoice TUI.
 | `p`     | Export invoice pdf                              |
 
 
-### Tech Stack
+### Tech Stack and Crates
 
 * **Language:** Rust
 * **UI Framework:** [Ratatui](https://github.com/ratatui-org/ratatui)
 * **Event Handling:** Crossterm
 * **Random IDs:** Rand
-* **PDF Generation:** genpdf
+* **PDF Generation:** Headless Chrome
 * **Database:** Sqlite / Serde
 
 
@@ -114,4 +120,4 @@ then open the invoice TUI.
 MIT License © 2025 Aung Min Khant
 
 
-// **invoice-rs** — where invoices meet terminal art.
+**invoice-rs** — where invoices meet terminal art.

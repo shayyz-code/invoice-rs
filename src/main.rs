@@ -7,6 +7,7 @@ use ratatui::{Terminal, backend::CrosstermBackend};
 use std::io;
 
 mod app;
+mod db;
 mod models;
 mod pdf;
 mod ui;
