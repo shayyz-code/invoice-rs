@@ -1,5 +1,4 @@
-use crate::{form::InvoiceForm, models::Invoice};
-
+use crate::{form::InvoiceForm, models::Invoice, pdf};
 pub enum Mode {
     Normal,
     Editing,
@@ -73,5 +72,9 @@ impl App {
     pub fn cancel_form(&mut self) {
         self.mode = Mode::Normal;
         self.form = None;
+    }
+
+    pub fn export_pdf(&mut self) {
+        pdf::generate_invoice_html(&self.selected_invoice()).unwrap();
     }
 }

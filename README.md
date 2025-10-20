@@ -13,12 +13,13 @@
 [![Rust](https://img.shields.io/badge/Rust-black?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org)
 [![Ratatui](https://img.shields.io/badge/Ratatui-1a1a1a?style=for-the-badge)](https://ratatui.rs)
 [![Crossterm](https://img.shields.io/badge/Crossterm-333333?style=for-the-badge)](https://crates.io/crates/crossterm)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](./LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](./LICENSE.md)
 [![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)](#)
 
 </div>
 
 A terminal-based **Invoice Management System** with unique invoice number built in **Rust** using [Ratatui](https://github.com/ratatui-org/ratatui).
+
 a TUI interface for managing invoices, and **PDF invoice generation** support.
 
 ### Features
@@ -26,7 +27,7 @@ a TUI interface for managing invoices, and **PDF invoice generation** support.
 - **Add / Edit / View Invoices** directly in your terminal
 - **6 Random Invoice Numbers** excluding existing ones
 - **Persistent storage** (SQLite planned)
-- **PDF Invoice Generation** using `genpdf`
+- **PDF Invoice Generation** using `headless_chrome`
 - Modular architecture with clear file separation
 - 100% Rust — no external UI frameworks needed
 
@@ -46,7 +47,7 @@ src/
 
 ```
 
-### For Development, Getting Started
+### Getting Started (For Development)
 
 #### 1. Prerequisites
 
@@ -95,9 +96,6 @@ then open the invoice TUI.
 * **Database:** Sqlite / Serde
 
 
-### Contributions
-
-
 <div align="center">
 
 **Contributions are always welcome <3**
@@ -115,4 +113,4 @@ then open the invoice TUI.
 MIT License © 2025 Aung Min Khant
 
 
-<3 **invoice-rs** — where invoices meet terminal art.
+// **invoice-rs** — where invoices meet terminal art.

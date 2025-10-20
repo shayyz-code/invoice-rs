@@ -9,6 +9,7 @@ use std::io;
 mod app;
 mod form;
 mod models;
+mod pdf;
 mod splash;
 mod ui;
 mod utils;
@@ -55,6 +56,7 @@ fn run_app(
                         KeyCode::Up => app.previous(),
                         KeyCode::Char('n') => app.start_new(),
                         KeyCode::Char('e') => app.start_edit(),
+                        KeyCode::Char('p') => app.export_pdf(),
                         _ => {}
                     },
                     Mode::Editing => {
