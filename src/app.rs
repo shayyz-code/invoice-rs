@@ -75,6 +75,6 @@ impl App {
     }
 
     pub fn export_pdf(&mut self) {
-        pdf::generate_invoice_html(&self.selected_invoice()).unwrap();
+        pdf::generate_invoice_pdf(&self.selected_invoice()).unwrap();
     }
 }
