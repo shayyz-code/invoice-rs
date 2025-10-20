@@ -7,15 +7,13 @@ use ratatui::{Terminal, backend::CrosstermBackend};
 use std::io;
 
 mod app;
-mod form;
 mod models;
 mod pdf;
-mod splash;
 mod ui;
 mod utils;
 
 use app::{App, Mode};
-use splash::SplashScreen;
+use ui::splash::SplashScreen;
 
 fn main() -> anyhow::Result<()> {
     enable_raw_mode()?;
@@ -43,7 +41,7 @@ fn run_app(
             if !splash.is_done() {
                 splash.draw(frame);
             } else {
-                ui::draw(frame, app);
+                ui::layout::draw(frame, app);
             }
         })?;
 
@@ -63,13 +61,38 @@ fn run_app(
                         let form = app.form.as_mut().unwrap();
                         match key.code {
                             KeyCode::Esc => app.cancel_form(),
-                            KeyCode::Enter => app.save_form(),
+                            KeyCode::Enter => app.open_save_modal(),
                             KeyCode::Tab => form.next_field(),
                             KeyCode::Backspace => form.backspace(),
                             KeyCode::Char(c) => form.update_field(c),
                             _ => {}
                         }
                     }
+                    Mode::Modal(modal_type) => match modal_type {
+                        ui::modal::ModalType::Alert => match key.code {
+                            _ => app.close_modals(),
+                        },
+                        ui::modal::ModalType::Confirm => match key.code {
+                            KeyCode::Tab => {
+                                if let Some(modal) = app.modal.as_mut() {
+                                    modal.next_field();
+                                }
+                            }
+                            KeyCode::Esc => app.close_modals(),
+                            KeyCode::Enter => {
+                                if let Some(mut modal) = app.modal.take() {
+                                    modal.press_field(
+                                        Box::new(|app: &mut App| {
+                                            app.close_modals();
+                                        }),
+                                        app,
+                                    );
+                                    app.modal = Some(modal);
+                                }
+                            }
+                            _ => {}
+                        },
+                    },
                 }
             }
         }

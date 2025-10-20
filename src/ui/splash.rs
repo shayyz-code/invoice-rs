@@ -5,6 +5,7 @@ use ratatui::{
     text::{Line, Span, Text},
     widgets::{Block, Borders, Paragraph},
 };
+
 use std::time::Instant;
 
 pub struct SplashScreen {
@@ -76,7 +77,7 @@ impl SplashScreen {
         let mut final_lines = lines;
         final_lines.push(Line::from(vec![
             Span::styled(
-                "shayyzcode",
+                "shayyz-code",
                 Style::default().fg(purple).add_modifier(Modifier::BOLD),
             ),
             Span::styled("\'s ", Style::default().fg(Color::Rgb(180, 140, 255))),

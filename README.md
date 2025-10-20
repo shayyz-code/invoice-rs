@@ -84,6 +84,7 @@ then open the invoice TUI.
 | `e`     | Edit invoice                                    |
 | `d`     | Delete invoice                                  |
 | `s`     | Save invoice                                    |
+| `p`     | Export invoice pdf                              |
 
 
 ### Tech Stack

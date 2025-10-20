@@ -4,7 +4,7 @@ use ratatui::{
     Frame,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    widgets::{Block, Borders, Paragraph},
+    widgets::{Block, Borders, Clear, Paragraph},
 };
 use std::collections::HashSet;
 use std::fmt;
@@ -98,6 +98,8 @@ pub fn draw_form(frame: &mut Frame, form: &InvoiceForm) {
     let size = frame.area();
     let popup_area = centered_rect(60, 40, size);
 
+    frame.render_widget(Clear, popup_area);
+
     let title = format!(
         "Editing Field {} of 4 (Tab to switch, Enter to save, Esc to cancel)",
         form.field_index + 1
@@ -106,7 +108,7 @@ pub fn draw_form(frame: &mut Frame, form: &InvoiceForm) {
     let block = Block::default()
         .borders(Borders::ALL)
         .title(title)
-        .style(Style::default().fg(Color::White));
+        .style(Style::default().fg(Color::White).bg(Color::Cyan));
 
     let text = format!("{}", form);
     let paragraph = Paragraph::new(text).alignment(Alignment::Left).block(block);

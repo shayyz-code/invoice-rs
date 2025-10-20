@@ -1,5 +1,6 @@
 use crate::app::{App, Mode};
-use crate::form::draw_form;
+use crate::ui::form::draw_form;
+use crate::ui::modal::draw_modal;
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
@@ -47,5 +48,9 @@ pub fn draw(frame: &mut Frame, app: &App) {
 
     if let (Mode::Editing, Some(form)) = (&app.mode, &app.form) {
         draw_form(frame, form);
+    }
+
+    if let (Mode::Modal(_), Some(modal)) = (&app.mode, &app.modal) {
+        draw_modal(frame, modal);
     }
 }

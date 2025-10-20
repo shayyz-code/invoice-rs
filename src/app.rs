@@ -1,7 +1,10 @@
-use crate::{form::InvoiceForm, models::Invoice, pdf};
+use crate::ui::{form::InvoiceForm, modal::Modal, modal::ModalType};
+use crate::{models::Invoice, pdf::generate_invoice_pdf};
+
 pub enum Mode {
     Normal,
     Editing,
+    Modal(ModalType),
 }
 
 pub struct App {
@@ -9,6 +12,7 @@ pub struct App {
     pub selected: usize,
     pub mode: Mode,
     pub form: Option<InvoiceForm>,
+    pub modal: Option<Modal>,
 }
 
 impl App {
@@ -21,6 +25,7 @@ impl App {
             selected: 0,
             mode: Mode::Normal,
             form: None,
+            modal: None,
         }
     }
 
@@ -50,6 +55,31 @@ impl App {
         self.form = Some(InvoiceForm::from_invoice(self.selected_invoice()));
     }
 
+    pub fn open_save_modal(&mut self) {
+        let invoice_id = self.selected_invoice().id;
+        let content = "Are you sure you want to save this invoice?".to_string();
+
+        // take a mutable pointer to self to pass into closure
+        let app_ptr: *mut App = self;
+
+        self.mode = Mode::Modal(ModalType::Confirm);
+        self.modal = Some(Modal::new(
+            Some(invoice_id),
+            content,
+            ModalType::Confirm,
+            Some(Box::new(move |_: &mut App| {
+                // cast pointer back to mutable reference
+                let app: &mut App = unsafe { &mut *app_ptr };
+                app.save_form();
+            })),
+        ));
+    }
+
+    pub fn close_modals(&mut self) {
+        self.mode = Mode::Normal;
+        self.modal = None;
+    }
+
     pub fn save_form(&mut self) {
         if let Some(form) = &self.form {
             let id = if self.selected < self.invoices.len() {
@@ -75,6 +105,6 @@ impl App {
     }
 
     pub fn export_pdf(&mut self) {
-        pdf::generate_invoice_pdf(&self.selected_invoice()).unwrap();
+        generate_invoice_pdf(&self.selected_invoice()).unwrap();
     }
 }
