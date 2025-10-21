@@ -1,8 +1,11 @@
-use crate::ui::{form::InvoiceForm, modal::Modal, modal::ModalType};
+use crate::db::Database;
+use crate::ui::layout::SelectedTab;
+use crate::ui::{invoice_form::InvoiceForm, modal::Modal, modal::ModalType};
 use crate::{
-    models::{Client, Invoice, Item},
+    models::{Client, Invoice},
     pdf::generate_invoice_pdf,
 };
+use std::sync::{Arc, Mutex};
 
 pub enum Mode {
     Normal,
@@ -11,72 +14,66 @@ pub enum Mode {
 }
 
 pub struct App {
+    pub db: Arc<Mutex<Database>>,
     pub invoices: Vec<Invoice>,
     pub clients: Vec<Client>,
     pub selected: usize,
     pub mode: Mode,
+    pub current_tab: SelectedTab,
     pub form: Option<InvoiceForm>,
     pub modal: Option<Modal>,
+    pub empty_invoice: Invoice,
+    pub empty_client: Client,
 }
 
 impl App {
     pub fn new() -> Self {
-        let clients = vec![
-            Client::new(
-                1,
-                "Alice Co.",
-                "123-456-7890",
-                "aliceco@example.com",
-                "123 Main St",
-            ),
-            Client::new(
-                2,
-                "Bob Ltd.",
-                "987-654-3210",
-                "bob@example.com",
-                "456 Elm St",
-            ),
-        ];
-        let invoices = vec![
-            Invoice::new(
-                1,
-                "INV-001",
-                clients.get(0).unwrap(),
-                "USD",
-                123.45,
-                3.45,
-                0.55,
-                "paid",
-                "Feb 15, 2023",
-                vec![
-                    Item::new("Item 1", Some(10.0), None, None),
-                    Item::new("Item 2", Some(20.0), None, None),
-                ],
-            ),
-            Invoice::new(
-                2,
-                "INV-002",
-                clients.get(1).unwrap(),
-                "USD",
-                456.78,
-                3.45,
-                0.55,
-                "unpaid",
-                "Feb 15, 2023",
-                vec![
-                    Item::new("Item 3", Some(30.0), None, None),
-                    Item::new("Item 4", Some(40.0), None, None),
-                ],
-            ),
-        ];
+        let db = match Database::new() {
+            Ok(db) => Arc::new(Mutex::new(db)),
+            Err(_) => {
+                // fallback (empty)
+                return Self {
+                    db: Arc::new(Mutex::new(Database::empty())),
+                    invoices: Vec::new(),
+                    clients: Vec::new(),
+                    selected: 0,
+                    mode: Mode::Normal,
+                    current_tab: SelectedTab::default(),
+                    form: None,
+                    modal: None,
+                    empty_client: Client::default(),
+                    empty_invoice: Invoice::default(),
+                };
+            }
+        };
+
+        let (clients, invoices) = {
+            let conn = db.lock().unwrap();
+            let clients = conn.get_all_clients().unwrap_or_else(|_| Vec::new());
+            let invoices = conn.get_all_invoices().unwrap_or_else(|_| Vec::new());
+            (clients, invoices)
+        };
+
         Self {
+            db,
             invoices,
             clients,
             selected: 0,
             mode: Mode::Normal,
+            current_tab: SelectedTab::default(),
             form: None,
             modal: None,
+            empty_client: Client::default(),
+            empty_invoice: Invoice::default(),
         }
+    }
+
+    pub fn next_tab(&mut self) {
+        self.current_tab = self.current_tab.next();
+    }
+
+    pub fn previous_tab(&mut self) {
+        self.current_tab = self.current_tab.previous();
     }
 
     pub fn next(&mut self) {
@@ -92,7 +89,10 @@ impl App {
     }
 
     pub fn selected_invoice(&self) -> &Invoice {
-        &self.invoices[self.selected]
+        &self
+            .invoices
+            .get(self.selected)
+            .unwrap_or(&self.empty_invoice)
     }
 
     pub fn start_new(&mut self) {
@@ -144,6 +144,11 @@ impl App {
                 if self.selected < self.invoices.len() {
                     self.invoices[self.selected] = inv;
                 } else {
+                    let result = self.db.lock().unwrap().add_invoice(&inv);
+                    match result {
+                        Ok(_) => (),
+                        Err(e) => println!("Error adding invoice: {}", e),
+                    }
                     self.invoices.push(inv);
                 }
             }

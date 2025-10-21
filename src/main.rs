@@ -1,3 +1,4 @@
+use color_eyre::Result;
 use crossterm::{
     event::{self, Event, KeyCode},
     execute,
@@ -16,8 +17,9 @@ mod utils;
 use app::{App, Mode};
 use ui::splash::SplashScreen;
 
-fn main() -> anyhow::Result<()> {
+fn main() -> Result<()> {
     enable_raw_mode()?;
+    color_eyre::install()?;
     let mut stdout = io::stdout();
     execute!(stdout, EnterAlternateScreen)?;
     let backend = CrosstermBackend::new(stdout);
@@ -36,7 +38,7 @@ fn run_app(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut App,
     splash: &mut SplashScreen,
-) -> anyhow::Result<()> {
+) -> Result<()> {
     loop {
         terminal.draw(|frame| {
             if !splash.is_done() {
@@ -53,6 +55,8 @@ fn run_app(
                         KeyCode::Char('q') | KeyCode::Esc => break,
                         KeyCode::Down => app.next(),
                         KeyCode::Up => app.previous(),
+                        KeyCode::Right => app.next_tab(),
+                        KeyCode::Left => app.previous_tab(),
                         KeyCode::Char('n') => app.start_new(),
                         KeyCode::Char('e') => app.start_edit(),
                         KeyCode::Char('p') => app.export_pdf(),

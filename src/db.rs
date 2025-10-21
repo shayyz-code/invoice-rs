@@ -1,14 +1,13 @@
 use crate::models::{Client, Invoice, Item};
 use rusqlite::{Connection, Result, params};
 
-pub struct Database {
-    conn: Connection,
-}
+#[derive(Debug)]
+pub struct Database(Connection);
 
 impl Database {
     pub fn new() -> Result<Self> {
         let conn = Connection::open("invoice-rs.db")?;
-        conn.execute(
+        conn.execute_batch(
             "
             CREATE TABLE IF NOT EXISTS clients (
                 id TEXT PRIMARY KEY,
@@ -33,14 +32,19 @@ impl Database {
                 UNIQUE (id)
             );
             ",
-            [],
         )?;
-        Ok(Self { conn })
+        Ok(Self(conn))
+    }
+
+    pub fn empty() -> Self {
+        // In-memory fallback
+        let conn = Connection::open_in_memory().expect("Failed to create in-memory DB");
+        Self(conn)
     }
 
     pub fn add_invoice(&self, invoice: &Invoice) -> Result<()> {
         let json_items = serde_json::to_string(&invoice.items).unwrap();
-        self.conn.execute(
+        self.0.execute(
             "INSERT INTO invoices (code, client_id, total, currency, discount, tax, status, date, items)
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
             params![
@@ -59,7 +63,7 @@ impl Database {
     }
 
     pub fn add_client(&self, client: &Client) -> Result<()> {
-        self.conn.execute(
+        self.0.execute(
             "INSERT INTO clients (id, name, phone, email, address)
              VALUES (?1, ?2, ?3, ?4, ?5)",
             params![
@@ -74,8 +78,7 @@ impl Database {
     }
 
     pub fn get_all_invoices(&self) -> Result<Vec<Invoice>> {
-        let mut stmt = self
-            .conn
+        let mut stmt = self.0
             .prepare("
                 SELECT id, code, total, currency, discount, tax, status, date, items, client_id, c.name AS client_name, c.phone AS client_phone, c.email AS client_email, c.address AS client_address
                 FROM invoices
@@ -101,6 +104,23 @@ impl Database {
                     email: row.get(12)?,
                     address: row.get(13)?,
                 },
+            })
+        })?;
+
+        Ok(rows.filter_map(Result::ok).collect())
+    }
+
+    pub fn get_all_clients(&self) -> Result<Vec<Client>> {
+        let mut stmt = self
+            .0
+            .prepare("SELECT id, name, phone, email, address FROM clients")?;
+        let rows = stmt.query_map([], |row| {
+            Ok(Client {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                phone: row.get(2)?,
+                email: row.get(3)?,
+                address: row.get(4)?,
             })
         })?;
 

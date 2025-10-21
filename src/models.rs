@@ -82,6 +82,21 @@ impl Invoice {
         }
     }
 
+    pub fn default() -> Self {
+        Self {
+            id: 0,
+            code: "empty_invoice".to_string(),
+            client: Client::default(),
+            currency: String::new(),
+            total: 0.0,
+            discount: 0.0,
+            tax: 0.0,
+            status: String::new(),
+            date: String::new(),
+            items: Vec::new(),
+        }
+    }
+
     pub fn calculate_net_total(&self) -> f64 {
         self.total - self.discount + self.tax
     }
@@ -104,6 +119,16 @@ impl Client {
             phone: phone.to_string(),
             email: email.to_string(),
             address: address.to_string(),
+        }
+    }
+
+    pub fn default() -> Self {
+        Self {
+            id: 0,
+            name: "empty_client".to_string(),
+            phone: String::new(),
+            email: String::new(),
+            address: String::new(),
         }
     }
 }
